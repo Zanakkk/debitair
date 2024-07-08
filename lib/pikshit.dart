@@ -53,7 +53,7 @@ class _PikshitState extends State<Pikshit> {
   Future<void> fetchData() async {
     final response = await http.get(
       Uri.parse(
-        'https://oral-medicine-default-rtdb.asia-southeast1.firebasedatabase.app/air.json',
+        'https://projectkranair-default-rtdb.asia-southeast1.firebasedatabase.app/air.json',
       ),
     );
 
