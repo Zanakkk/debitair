@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "207793070467",
+    "project_id": "projectkranair",
+    "storage_bucket": "projectkranair.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:207793070467:android:82d51d0e0e6f44c4bed6b6",
+        "android_client_info": {
+          "package_name": "com.example.untitled"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC-hzUFm58ccBd5FEal5lNWNh5Cs7NkirY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

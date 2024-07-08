@@ -88,6 +88,8 @@ class _PikshitState extends State<Pikshit> {
     }
   }
 
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -130,6 +132,7 @@ class _PikshitState extends State<Pikshit> {
                     ],
                   ),
                 ),
+
               ],
             ),
           ),
@@ -190,5 +193,16 @@ class LineChartSample1 extends StatelessWidget {
         ],
       ),
     );
+  }
+}
+extension on DebitData {
+  Map<String, dynamic> toJson() {
+    return {
+      'date': date,
+      'debit': debit,
+      'id': id,
+      'time': time,
+      'kran': kran,
+    };
   }
 }
