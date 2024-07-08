@@ -2,19 +2,17 @@ import 'dart:convert';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:untitled/chart.dart';
+import 'dart:async';
 
 class DebitData {
   final String date;
   final double debit;
-  final int id;
   final String time;
   final int kran;
 
   DebitData({
     required this.date,
     required this.debit,
-    required this.id,
     required this.time,
     required this.kran,
   });
@@ -22,16 +20,15 @@ class DebitData {
   factory DebitData.fromJson(Map<String, dynamic> json) {
     return DebitData(
       date: json['date'] as String,
-      debit: json['debit'].toDouble(),
-      id: json['id'] as int,
+      debit: double.parse(json['debit'].toString()), // Parse debit as double
       time: json['time'] as String,
-      kran: json['kran'] as int,
+      kran: int.parse(json['kran'].toString()), // Parse kran as int
     );
   }
 }
 
 class Pikshit extends StatefulWidget {
-  const Pikshit({Key? key}) : super(key: key);
+  const Pikshit({super.key});
 
   @override
   State<Pikshit> createState() => _PikshitState();
@@ -42,12 +39,13 @@ class _PikshitState extends State<Pikshit> {
   double totalDebit = 0.0;
   List<double> debitByMonthGlobal = List.filled(12, 0);
   List<List<double>> debitByKranAndMonth =
-      List.generate(5, (_) => List.filled(12, 0.0));
+  List.generate(5, (_) => List.filled(12, 0.0));
 
   @override
   void initState() {
     super.initState();
-    fetchData();
+    fetchData(); // fetch data immediately on init
+    Timer.periodic(const Duration(seconds: 30), (Timer t) => fetchData());
   }
 
   Future<void> fetchData() async {
@@ -59,10 +57,10 @@ class _PikshitState extends State<Pikshit> {
 
     if (response.statusCode == 200) {
       // Parsing JSON
-      final List<dynamic> responseData = jsonDecode(response.body);
+      final Map<String, dynamic> responseData = jsonDecode(response.body);
 
       setState(() {
-        dataair = responseData.map((entry) {
+        dataair = responseData.values.map((entry) {
           return DebitData.fromJson(entry);
         }).toList();
 
@@ -74,7 +72,7 @@ class _PikshitState extends State<Pikshit> {
 
         // Grouping data by month and kran
         for (var entry in dataair) {
-          final month = int.parse(entry.date.split('/')[1]) - 1;
+          final month = int.parse(entry.date.split('-')[1]) - 1; // adjust parsing based on your date format
           final kran = entry.kran - 1; // Adjusting kran index to start from 0
           debitByMonthGlobal[month] += entry.debit;
           debitByKranAndMonth[kran][month] += entry.debit;
@@ -88,13 +86,11 @@ class _PikshitState extends State<Pikshit> {
     }
   }
 
-
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('API Data'),
+        title: const Text('API Data'),
       ),
       body: Row(
         children: [
@@ -112,9 +108,8 @@ class _PikshitState extends State<Pikshit> {
                         subtitle: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text('Id: ${item.id}'),
                             Text('Date: ${item.date}'),
-                            Text('Debit: ${item.debit}'),
+                            Text('Debit: ${item.debit.toStringAsFixed(2)}'), // Display debit with two decimal places
                             Text('Time: ${item.time}'),
                           ],
                         ),
@@ -127,12 +122,11 @@ class _PikshitState extends State<Pikshit> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Jumlah dalam 6 bulan : $totalDebit'),
-                      Text('Prediksi 6 bulan kedepan : ${totalDebit * 0.9}'),
+                      Text('Jumlah dalam 6 bulan : ${totalDebit.toStringAsFixed(2)}'),
+                      Text('Prediksi 6 bulan kedepan : ${(totalDebit * 0.9).toStringAsFixed(2)}'),
                     ],
                   ),
                 ),
-
               ],
             ),
           ),
@@ -144,14 +138,14 @@ class _PikshitState extends State<Pikshit> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text('Pemakaian kran ${kranIndex + 1} per bulan:'),
-                    SizedBox(height: 8), // spasi antara judul dan chart
+                    const SizedBox(height: 8), // spasi antara judul dan chart
                     SizedBox(
                       height: 400,
                       width: 400,
                       child: LineChartSample1(
                           data: debitByKranAndMonth[kranIndex]),
                     ),
-                    SizedBox(height: 16), // spasi antara setiap kran
+                    const SizedBox(height: 16), // spasi antara setiap kran
                   ],
                 );
               },
@@ -164,7 +158,7 @@ class _PikshitState extends State<Pikshit> {
 }
 
 class LineChartSample1 extends StatelessWidget {
-  const LineChartSample1({required this.data, Key? key}) : super(key: key);
+  const LineChartSample1({required this.data, super.key});
   final List<double> data;
   @override
   Widget build(BuildContext context) {
@@ -182,7 +176,7 @@ class LineChartSample1 extends StatelessWidget {
           LineChartBarData(
             spots: List.generate(
               data.length,
-              (index) => FlSpot(index.toDouble(), data[index]),
+                  (index) => FlSpot(index.toDouble(), data[index]),
             ),
             isCurved: true,
             color: Colors.blue,
@@ -193,16 +187,5 @@ class LineChartSample1 extends StatelessWidget {
         ],
       ),
     );
-  }
-}
-extension on DebitData {
-  Map<String, dynamic> toJson() {
-    return {
-      'date': date,
-      'debit': debit,
-      'id': id,
-      'time': time,
-      'kran': kran,
-    };
   }
 }
